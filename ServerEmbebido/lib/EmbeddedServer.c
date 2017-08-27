@@ -32,73 +32,10 @@ $./server
 
 char *ROOT;
 int listenfd, clients[CONNMAX];
-void error(char *);
-void startServer(char *);
-void respond(int);
 
-int main(int argc, char* argv[])
-{
-    struct sockaddr_in clientaddr;
-    socklen_t addrlen;
-    char c;    
-    
-    //Default Values PATH = ~/ and PORT=10000
-    char PORT[6];
-    ROOT = getenv("PWD");
-    strcpy(PORT,"10000");
-
-    int slot=0;
-
-    //Parsing the command line arguments
-    while ((c = getopt (argc, argv, "p:r:")) != -1)
-        switch (c)
-        {
-            case 'r':
-                ROOT = malloc(strlen(optarg));
-                strcpy(ROOT,optarg);
-                break;
-            case 'p':
-                strcpy(PORT,optarg);
-                break;
-            case '?':
-                fprintf(stderr,"Wrong arguments given!!!\n");
-                exit(1);
-            default:
-                exit(1);
-        }
-    
-    printf("Server started at port no. %s%s%s with root directory as %s%s%s\n","\033[92m",PORT,"\033[0m","\033[92m",ROOT,"\033[0m");
-    // Setting all elements to -1: signifies there is no client connected
-    int i;
-    for (i=0; i<CONNMAX; i++)
-        clients[i]=-1;
-    startServer(PORT);
-
-    // ACCEPT connections
-    while (1)
-    {
-        addrlen = sizeof(clientaddr);
-        clients[slot] = accept (listenfd, (struct sockaddr *) &clientaddr, &addrlen);
-
-        if (clients[slot]<0)
-            error ("accept() error");
-        else
-        {
-            if ( fork()==0 )
-            {
-                respond(slot);
-                exit(0);
-            }
-        }
-
-        while (clients[slot]!=-1) slot = (slot+1)%CONNMAX;
-    }
-
-    return 0;
-}
 
 //start server
-void startServer(char *port)
+void startServer(char *port, int *listenfd)
 {
     struct addrinfo hints, *res, *p;
 
@@ -115,9 +52,9 @@ void startServer(char *port)
     // socket and bind
     for (p = res; p!=NULL; p=p->ai_next)
     {
-        listenfd = socket (p->ai_family, p->ai_socktype, 0);
-        if (listenfd == -1) continue;
-        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) break;
+        *listenfd = socket (p->ai_family, p->ai_socktype, 0);
+        if (*listenfd == -1) continue;
+        if (bind(*listenfd, p->ai_addr, p->ai_addrlen) == 0) break;
     }
     if (p==NULL)
     {
@@ -128,7 +65,7 @@ void startServer(char *port)
     freeaddrinfo(res);
 
     // listen for incoming connections
-    if ( listen (listenfd, 1000000) != 0 )
+    if ( listen (*listenfd, 1000000) != 0 )
     {
         perror("listen() error");
         exit(1);

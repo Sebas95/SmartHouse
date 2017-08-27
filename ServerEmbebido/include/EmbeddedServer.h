@@ -2,7 +2,8 @@
 #define _EMBEDDEDSERVER_H
 
 
-void startServer(char *);
+void startServer(char *,int *);
 void respond(int);
+void error(char*);
 
 #endif
