@@ -99,9 +99,12 @@ void respond(int n)
                 write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
             }
             else
-            {
+            {	
                 if ( strncmp(reqline[1], "/\0", 2)==0 )
                     reqline[1] = "/index.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
+
+                if ( strncmp(reqline[1], "/lights/\0", 2)==0 )
+                    reqline[1] = "/lights.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
 
                 strcpy(path, ROOT);
                 strcpy(&path[strlen(ROOT)], reqline[1]);
@@ -109,7 +112,8 @@ void respond(int n)
 
                 if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
                 {
-                    send(clients[n], "HTTP/1.0 200 OK\n\n", 17, 0);
+                    send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 199, 0);
+                    //send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:*\nAccess-Control-Allow-Headers:Content-Type\n\n", 89, 0);
                     while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
                         write (clients[n], data_to_send, bytes_read);
                 }

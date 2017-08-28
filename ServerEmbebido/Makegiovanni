@@ -1,0 +1,6 @@
+do:
+		autoreconf --install
+		./configure --prefix=/home/giovanni/libserver/build/usr
+		make
+		make install
+		make distcheck
