@@ -11,7 +11,7 @@
 #include<fcntl.h>
 #include<EmbeddedServer.h>
 
-#define CONNMAX 1000
+#define CONNMAX 10
 #define BYTES 1024
 
 char *ROOT;
@@ -23,10 +23,10 @@ int main(int argc, char* argv[])
     socklen_t addrlen;
     char c;    
     
-    //Default Values PATH = ~/ and PORT=10000
+    //Default Values PATH = ~/ and PORT=7500
     char PORT[6];
     ROOT = getenv("PWD");
-    strcpy(PORT,"10000");
+    strcpy(PORT,"7500");
 
     int slot=0;
 
