@@ -1,0 +1,11 @@
+Hacer una carpeta (layer) llamada meta extra en poky 
+Crea carpeta llamada conf y recipes-libs en meta-extra
+Copiar la carpeta conf de otro layer y cambiar el layer.conf quitando de bbappend hacia abajo
+Crear un folder adentro de recipes-libs llamados fswebcam y gd (adentro estan las recetas)
+Buscar una receta en google y crear un archivo .bb para cada carpeta anterior
+Meter en el .bb las recetas
+Agregar en el local.conf un IMAGE_INSTALL_append = " fswebcam"
+Correr source oe tab 
+bitbake y listo 
+ 
+

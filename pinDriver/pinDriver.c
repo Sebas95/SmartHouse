@@ -78,7 +78,7 @@ void writePin(short pinNumber, short value){
 		strcat(finalCall, pinNumberAux);
 		strcat(finalCall, VALUE);
 		printf("%s\n",finalCall);
-		system(finalCall);
+		//system(finalCall);
 	}
 }
 
@@ -105,8 +105,8 @@ void setPin(short pinNumber,char state){ //0 for in, 1 for out
 	strcat(finalCall, PATH);
 	strcat(finalCall, pinNumberAux);
 	strcat(finalCall, DIRECTION);
-	system(finalCall);
-	//printf("%s\n",finalCall);
+	//system(finalCall);
+	printf("%s\n",finalCall);
 
 	//system("echo \"out\" > /sys/class/gpio/gpio4/direction");
 
