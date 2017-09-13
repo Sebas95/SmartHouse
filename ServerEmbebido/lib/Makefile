@@ -7,7 +7,7 @@ OBJ = $(LIB).o
 CFLAGS = -c -Wall
 #Estática
 libembeddedserver.a : $(OBJ)
-		$(CC) $(CFLAGS) EmbeddedServer.c -I ./ 
+		$(CC) $(CFLAGS) EmbeddedServer.c ServerUtils.c -I ./ 
 		ar rv libEmbeddedServer.a $(OBJ)
 		ranlib libEmbeddedServer.a
 		nm -s libEmbeddedServer.a

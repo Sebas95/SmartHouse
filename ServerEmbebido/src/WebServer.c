@@ -11,8 +11,8 @@
 #include<fcntl.h>
 #include<EmbeddedServer.h>
 
-#define CONNMAX 10
-#define BYTES 1024
+
+
 
 char *ROOT;
 int listenfd, clients[CONNMAX];
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     //Default Values PATH = ~/ and PORT=7500
     char PORT[6];
     ROOT = getenv("PWD");
-    strcpy(PORT,"7500");
+    strcpy(PORT,"7502");
 
     int slot=0;
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
         {
             if ( fork()==0 )
             {
-                respond(slot);
+                respond(slot,ROOT);
                 //options(slot);
                 //receive(slot);
                 exit(0);
