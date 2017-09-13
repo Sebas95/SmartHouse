@@ -31,26 +31,23 @@ int main(int argc, char* argv[])
     int slot=0;
 
     //Parsing the command line arguments
-    /*while ((c = getopt (argc, argv, "p:r:")) != -1)
+    while ((c = getopt (argc, argv, "p:r:")) != -1)
         switch (c)
         {
             case 'r':
-                printf("Prueba Basica3 \n");
                 ROOT = malloc(strlen(optarg));
                 strcpy(ROOT,optarg);
                 break;
             case 'p':
-                printf("Prueba Basica4 \n");
                 strcpy(PORT,optarg);
                 break;
             case '?':
-                printf("Prueba Basica5 \n");
                 fprintf(stderr,"Wrong arguments given!!!\n");
                 exit(1);
             default:
                 exit(1);
-        }*/
-
+        }
+    
     printf("Server started at port no. %s%s%s with root directory as %s%s%s\n","\033[92m",PORT,"\033[0m","\033[92m",ROOT,"\033[0m");
     // Setting all elements to -1: signifies there is no client connected
     int i;
@@ -71,6 +68,8 @@ int main(int argc, char* argv[])
             if ( fork()==0 )
             {
                 respond(slot);
+                //options(slot);
+                //receive(slot);
                 exit(0);
             }
         }

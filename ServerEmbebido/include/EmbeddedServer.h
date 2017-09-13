@@ -4,6 +4,7 @@
 
 void startServer(char *,int *);
 void respond(int);
+void receive(int);
 void error(char*);
 
 #endif
