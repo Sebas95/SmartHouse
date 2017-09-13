@@ -62,23 +62,31 @@ int main(){
 
     //exportPin(4);
 
-	
+	//Test used to write to the pins
+	/*
     init();	
 	setPin(2,'i');
 	setPin(3,'i');
 	setPin(4,'i');	
-	//writePin(2,0);
-	//writePin(3,1);
-	//writePin(4,1);
-	while(1){
-		usleep(1000000);
-		readPin(4);
-		readPin(3);
-		readPin(2);
-	}
-	//usleep(1000000);
-	//writePin(3,1);
+	writePin(2,0);
+	writePin(3,1);
+	writePin(4,1);
+	*/
 	
+	//Test used for test the read of the pins
+
+    init();	
+	setPin(2,'i');
+	setPin(3,'i');
+	setPin(4,'i');	
+
+	while(1){
+		printf("---------------------------------------\n");
+		usleep(1000000);
+		printf("Valor del pin 2: %d\n",readPin(2));
+		printf("Valor del pin 3: %d\n",readPin(3));
+		printf("Valor del pin 4: %d\n",readPin(4));
+	}
 
 }
 //This function itializates the required pins using exportPin
@@ -186,6 +194,11 @@ void setPin(short pinNumber,char state){ //0 for in, 1 for out
 	//system("echo \"out\" > /sys/class/gpio/gpio4/direction");
 }
 
+/*
+** The parameter pinNumber is used to specified the pin to read
+** This function is used to read from the pins
+*/
+
 short readPin(short pinNumber){
 	char openCall[47] = PATH;
 	char pinNumberAux[2] = "";
@@ -195,15 +208,15 @@ short readPin(short pinNumber){
 	//printf("Call para el valor: %s\n",openCall);
 	//-------------------Check if pin is exported
 	int fd = open(openCall,(O_RDWR|O_SYNC));
-	char data[128];
-    if(read(fd, data, 128) < 0){
+	char* data = malloc(sizeof(char));
+    if(read(fd, data, 1) < 0){
  		printf("The pin %d is not configured\n",pinNumber);
      	return -1;
      }
  	else{
-		printf("The value of pin %d\n is: %s\n",pinNumber,data);
-		int returnValue = (int) *data;
-		printf("Valor casteado: %d\n",returnValue);
-		return 4;
+		//printf("The value of pin %d is: %s\n",pinNumber,data);
+		short* returnValue = malloc(sizeof(short));
+		*returnValue = atoi(data);
+		return *returnValue;
  	}
 }
