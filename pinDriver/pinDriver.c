@@ -3,6 +3,9 @@
 #include <string.h>
 #include "pinDriver.h"
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 
 int main(){
@@ -47,20 +50,88 @@ int main(){
 	//init();
 	//setPin(3,'o');
 	
+	/*int fd = open("/sys/class/gpio/gpio3/value",(O_RDWR|O_SYNC));
+
+	char data[128];
+ 
+    if(read(fd, data, 128) < 0)
+     	write(2, "An error occurred in the read.\n", 31);
+ 
+ 	printf("%s\n",data);
+    exit(0);*/
+
+    //exportPin(4);
+
+	
     init();	
-	setPin(3,'o');
-	writePin(3,0);
-	usleep(1000000);
-	writePin(3,1);
+	setPin(2,'i');
+	setPin(3,'i');
+	setPin(4,'i');	
+	//writePin(2,0);
+	//writePin(3,1);
+	//writePin(4,1);
+	while(1){
+		usleep(1000000);
+		readPin(4);
+		readPin(3);
+		readPin(2);
+	}
+	//usleep(1000000);
+	//writePin(3,1);
+	
 
 }
-
+//This function itializates the required pins using exportPin
 void init(){
-	//char* test = malloc(sizeof())
-	system("echo \"2\" > /sys/class/gpio/export");
-	system("echo \"3\" > /sys/class/gpio/export");
-	system("echo \"4\" > /sys/class/gpio/export");
+	exportPin(2);
+	exportPin(3);
+	exportPin(4);
+
+	//system("echo \"3\" > /sys/class/gpio/export");
+	//system("echo \"4\" > /sys/class/gpio/export");
 }
+
+/**
+** pinNumber is the number of GPIO to export
+** This is the functions that allows to export a pin named un pinNumber
+**/
+
+
+void exportPin(short pinNumber){
+	char openCall[47] = PATH;
+	char pinNumberAux[2] = "";
+	char finalCall[47] = ECHO;
+
+	sprintf(pinNumberAux, "%d", pinNumber);
+
+	strcat(openCall, pinNumberAux);	
+	strcat(openCall, "/value");	
+	//printf("Call para el valor: %s\n",openCall);
+	//-------------------Check if pin is exported
+	int fd = open(openCall,(O_RDWR|O_SYNC));
+
+	char data[128];
+ 
+    if(read(fd, data, 128) < 0){
+    	sprintf(pinNumberAux, "\"%d\"", pinNumber);
+		strcat(finalCall, pinNumberAux);
+		strcat(finalCall, MORE_THAN);
+		strcat(finalCall, PATH_EXPORT);
+ 		printf("Export pin: %s\n",pinNumberAux);
+ 		system(finalCall);
+ 		//printf("%s\n",data);
+     	
+     }
+ 	else{
+		printf("Pin %s already exported.\n",pinNumberAux);
+ 	}
+
+}
+
+/**	pinNumber is the number of GPIO to write
+**  value is te value to write in the pin
+** This functions write to a specified pinNumber the value 
+**/
 
 void writePin(short pinNumber, short value){
 	if(value != 0 && value != 1){
@@ -77,13 +148,17 @@ void writePin(short pinNumber, short value){
 		sprintf(pinNumberAux, "%d", pinNumber);
 		strcat(finalCall, pinNumberAux);
 		strcat(finalCall, VALUE);
-		printf("%s\n",finalCall);
-		//system(finalCall);
+		printf("Writting %d in pin: %s\n",value,pinNumberAux);
+		system(finalCall);
 	}
 }
 
 
-
+/**
+** pinNumber is the number of the GPIO to set
+** state is the state of which will be the GPIO out or in
+** This function allow to set a pin as in or out
+**/
 void setPin(short pinNumber,char state){ //0 for in, 1 for out
 	char stateAux[3] = "";
 	char pinNumberAux[2] = "";
@@ -105,9 +180,30 @@ void setPin(short pinNumber,char state){ //0 for in, 1 for out
 	strcat(finalCall, PATH);
 	strcat(finalCall, pinNumberAux);
 	strcat(finalCall, DIRECTION);
-	//system(finalCall);
-	printf("%s\n",finalCall);
+	printf("Setting pin %s to: %s\n",pinNumberAux,stateAux);
+	system(finalCall);
 
 	//system("echo \"out\" > /sys/class/gpio/gpio4/direction");
+}
 
+short readPin(short pinNumber){
+	char openCall[47] = PATH;
+	char pinNumberAux[2] = "";
+	sprintf(pinNumberAux, "%d", pinNumber);
+	strcat(openCall, pinNumberAux);	
+	strcat(openCall, "/value");	
+	//printf("Call para el valor: %s\n",openCall);
+	//-------------------Check if pin is exported
+	int fd = open(openCall,(O_RDWR|O_SYNC));
+	char data[128];
+    if(read(fd, data, 128) < 0){
+ 		printf("The pin %d is not configured\n",pinNumber);
+     	return -1;
+     }
+ 	else{
+		printf("The value of pin %d\n is: %s\n",pinNumber,data);
+		int returnValue = (int) *data;
+		printf("Valor casteado: %d\n",returnValue);
+		return 4;
+ 	}
 }
