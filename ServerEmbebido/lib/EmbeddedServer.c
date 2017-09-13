@@ -100,7 +100,7 @@ void respond(int n,char* ROOT)
 
         }
         reqline[0] = strtok (mesg, " \t\n");
-        //aqui se iniciA el get
+        //aqui se iniciA el get-----------------------------------------------------------------------------------------
         if ( strncmp(reqline[0], "GET\0", 4)==0 )
         {
             reqline[1] = strtok (NULL, " \t");
@@ -132,7 +132,7 @@ void respond(int n,char* ROOT)
             }
         }
 
-        //Aqui se realiza el options
+        //Aqui se realiza el option.-----------------------------------------------------------------------------------------------
         else if ( strncmp(reqline[0], "OPTIONS\0", 4)==0 )
         {
             reqline[1] = strtok (NULL, " \t");
@@ -156,7 +156,7 @@ void respond(int n,char* ROOT)
         }
 
 
-        //aqui inicia el post
+        //aqui inicia el post---------------------------------------------------------------------------------------------------------
         else  if ( strncmp(reqline[0], "POST\0", 4)==0 )
         {
             reqline[1] = strtok (NULL, " \t");
@@ -189,7 +189,7 @@ void respond(int n,char* ROOT)
                 else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
             }
         }
-
+        //put ------------------------------------------------------------------------------------------------------------------------------
         else  if ( strncmp(reqline[0], "PUT\0", 4)==0 )
         {
             reqline[1] = strtok (NULL, " \t");
@@ -200,16 +200,14 @@ void respond(int n,char* ROOT)
             }
             else
             {   
-                if ( strncmp(reqline[1], "/\0", 2)==0 )
-                    reqline[1] = "/index.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-                
+                               
                 if ( strncmp(reqline[1], "/interfaz/\0", 2)==0 ){
                 	printf("\nsi esta entrando\n");
                 	printf("\nesto es una prueba\n");
                 	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
                 }
                 
-                if ( strncmp(reqline[1], "/login/\0", 2)==0 ){
+                else if ( strncmp(reqline[1], "/login/\0", 2)==0 ){
                     reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
                 
 	                strcpy(path, ROOT);
