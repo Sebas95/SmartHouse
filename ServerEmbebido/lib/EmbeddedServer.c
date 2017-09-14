@@ -110,7 +110,13 @@ void options_verb(int n)
         else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
     }
 }
-
+short retStateShort(char c)
+{
+	if(c=='0')
+		return 0;
+	else 
+		return 1;
+}
 void put_verb(int n)
 
 {
@@ -121,12 +127,10 @@ void put_verb(int n)
         	char* string =  get_luces(datos);
         	printf("\ndatos: %c\n %c\n", string[26], string[37]);
 
-        	//writePin(2,atoi(string[26]));
-        	//writePin(3,atoi(string[37]));
-        	//writePin(4,atoi(string[26]));
-        	writePin(2,1);
-        	writePin(3,0);
-        	writePin(4,1);
+        	
+        	writePin(2,retStateShort(string[37]));
+        	writePin(3,retStateShort(string[37]));
+        	writePin(4,retStateShort(string[37]));
 
            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }         
@@ -141,6 +145,8 @@ const char* retState(char c)
 	else
 		return "0";
 }
+
+
 
 void get_verb(int n)
 {
