@@ -10,13 +10,18 @@
 
 //This function itializates the required pins using exportPin
 void init(){
-	exportPin(2);
-	exportPin(3);
-	exportPin(4);
+	exportPin(7); //luz 1 
+	exportPin(2); //luz 2
+	exportPin(3); //luz 3
+	exportPin(4); //luz 4
+	exportPin(5); //luz 5
+	
 
+	setPin(7,'o');
 	setPin(2,'o');
 	setPin(3,'o');
 	setPin(4,'o');
+	setPin(5,'o');
 
 	//system("echo \"3\" > /sys/class/gpio/export");
 	//system("echo \"4\" > /sys/class/gpio/export");

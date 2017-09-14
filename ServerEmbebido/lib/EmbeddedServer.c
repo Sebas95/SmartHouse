@@ -110,27 +110,22 @@ void options_verb(int n)
         else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
     }
 }
-short retStateShort(char c)
-{
-	if(c=='0')
-		return 0;
-	else 
-		return 1;
-}
-void put_verb(int n)
 
+void put_verb(int n)
 {
 	if(checkBadRequest(n))
     {                          
         if ( strncmp(reqline[1], "/luces/\0", 2)==0 )
         {
+        	//obtiene el json
         	char* string =  get_luces(datos);
-        	printf("\ndatos: %c\n %c\n", string[26], string[37]);
-
+        	short numero_luz = retStateShort(string[26]);
+        	short estado_luz =  retStateShort(string[37]);
+        	if(numero_luz == 1) numero_luz = 7;
+        	printf("\nnumero bombillo: %c estado %c\n", string[26], string[37]);
+        	//escribe en el bombillo que necesite, el estado (prendido o apagado)
+        	writePin(numero_luz ,estado_luz );
         	
-        	writePin(2,retStateShort(string[37]));
-        	writePin(3,retStateShort(string[37]));
-        	writePin(4,retStateShort(string[37]));
 
            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }         
@@ -138,13 +133,7 @@ void put_verb(int n)
     }
 }
 
-const char* retState(char c)
-{
-	if(c=='0')
-		return "1";
-	else
-		return "0";
-}
+
 
 
 
