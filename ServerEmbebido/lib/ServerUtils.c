@@ -243,9 +243,9 @@ short retStateShort(char c)
 }
 
 
-const char* retState(char c)
+const char* retState(short c)
 {
-	if(c=='0')
+	if(c==0)
 		return "0";
 	else
 		return "1";

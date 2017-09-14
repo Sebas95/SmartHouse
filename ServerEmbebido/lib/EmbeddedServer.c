@@ -14,10 +14,11 @@
 #include "pinDriver.c"
 #include "../include/EmbeddedServer.h"
 
+#define CODIGO_TODAS_PUERTAS 6
 
 char mesg[99999], datos[99999], *reqline[3], data_to_send[BYTES], path[99999];
 int rcvd, fd, bytes_read;
-char Puertas[10];
+short Puertas[4];
   
 
 
@@ -122,12 +123,19 @@ void put_verb(int n)
 
         	short numero_luz = lightPinMapper(string[26]);
         	short estado_luz =  retStateShort(string[37]);
-
-        	printf("\nnumero bombillo: %c estado %c\n", string[26], string[37]);
-        	//escribe en el bombillo que necesite, el estado (prendido o apagado)
-        	writePin(numero_luz ,estado_luz );
-        	
-
+            if(numero_luz == CODIGO_TODAS_PUERTAS)
+        	{
+        		writePin(lightPinMapper('1') ,estado_luz ); 
+        		writePin(lightPinMapper('2') ,estado_luz ); 
+        		writePin(lightPinMapper('3') ,estado_luz ); 
+        		writePin(lightPinMapper('4') ,estado_luz ); 
+        		writePin(lightPinMapper('5') ,estado_luz ); 
+        	}
+        	else
+        	{
+        		//escribe en el bombillo que necesite, el estado (prendido o apagado)
+        		writePin(numero_luz ,estado_luz );
+        	}
            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }         
         else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
@@ -147,39 +155,30 @@ void get_verb(int n)
         {
             send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
              
-            int x ;
-            for(x=0; x< 5 ; x++)
-             	Puertas[x] = x ;
-            for(x=5; x< 10 ;x++) 
-             	Puertas[x] =  readPin(doorPinMapper(Puertas[x-5]));
-             
+            short x ;
+            for(x=0; x< 4 ;x++) 
+            {
+             	Puertas[x] =  readPin(doorPinMapper(x+1));
+             	printf("%d shrt:\n",Puertas[x]);
+             }
              char jsonDoors[1000] = "";
 
              strcat(jsonDoors , "[");     
-             strcat(jsonDoors ,"{\"numero\":");
+             strcat(jsonDoors ,"{\"numero\":1");
+             strcat(jsonDoors , ",\"estado\":");
              strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , "},");
+             strcat(jsonDoors ,"{\"numero\":2"); 
              strcat(jsonDoors , ",\"estado\":");
              strcat(jsonDoors , retState(Puertas[1])); 
              strcat(jsonDoors , "},");
-             strcat(jsonDoors ,"{\"numero\":");
+             strcat(jsonDoors ,"{\"numero\":3"); 
+             strcat(jsonDoors , ",\"estado\":");
              strcat(jsonDoors , retState(Puertas[2])); 
+             strcat(jsonDoors , "},");
+             strcat(jsonDoors ,"{\"numero\":4"); 
              strcat(jsonDoors , ",\"estado\":");
              strcat(jsonDoors , retState(Puertas[3])); 
-             strcat(jsonDoors , "},");
-             strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[4])); 
-             strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[5])); 
-             strcat(jsonDoors , "},");
-             strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[6])); 
-             strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[7])); 
-             strcat(jsonDoors , "},");
-             strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[8])); 
-             strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[9])); 
              strcat(jsonDoors , "}");
              strcat(jsonDoors ,"]"); 
              
