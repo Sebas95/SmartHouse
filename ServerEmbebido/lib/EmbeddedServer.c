@@ -31,7 +31,9 @@ $./server
 #include "../include/EmbeddedServer.h"
 
 
-int clients[CONNMAX];
+char mesg[99999], datos[99999], *reqline[3], data_to_send[BYTES], path[99999];
+int rcvd, fd, bytes_read;
+
 //start server
 void startServer(char *port, int *listenfd)
 {
@@ -70,16 +72,12 @@ void startServer(char *port, int *listenfd)
     }
 }
 
+
 //client connection
 void respond(int n,char* ROOT)
 {
-    char mesg[99999], datos[99999], *reqline[3], data_to_send[BYTES], path[99999];
-    int rcvd, fd, bytes_read;
-
     memset( (void*)mesg, (int)'\0', 99999 );
-
     rcvd=recv(clients[n], mesg, 99999	, 0);
-
     if (rcvd<0)    // receive error
         fprintf(stderr,("recv() error\n"));
     else if (rcvd==0)    // receive socket closed
@@ -97,153 +95,156 @@ void respond(int n,char* ROOT)
         		bandera = true;
         		j=j+1;
         	}
-
         }
         reqline[0] = strtok (mesg, " \t\n");
-        //aqui se iniciA el get-----------------------------------------------------------------------------------------
-        if ( strncmp(reqline[0], "GET\0", 4)==0 )
-        {
-            reqline[1] = strtok (NULL, " \t");
-            reqline[2] = strtok (NULL, " \t\n");
-            if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
-            {
-                write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
-            }
-            else
-            {	
-                if ( strncmp(reqline[1], "/\0", 2)==0 )
-                    reqline[1] = "/index.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-
-                if ( strncmp(reqline[1], "/lights/\0", 2)==0 )
-                    reqline[1] = "/lights.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-
-                strcpy(path, ROOT);
-                strcpy(&path[strlen(ROOT)], reqline[1]);
-                printf("file: %s\n", path);
-
-                if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
-                {
-                    send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
-                    //send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:*\nAccess-Control-Allow-Headers:Content-Type\n\n", 89, 0);
-                    while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
-                        write (clients[n], data_to_send, bytes_read);
-                }
-                else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
-            }
-        }
-
-        //Aqui se realiza el option.-----------------------------------------------------------------------------------------------
-        else if ( strncmp(reqline[0], "OPTIONS\0", 4)==0 )
-        {
-            reqline[1] = strtok (NULL, " \t");
-            reqline[2] = strtok (NULL, " \t\n");
-            if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
-            {
-                write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
-            }
-            else
-            {	
-            	if (strncmp(reqline[1], "/interfaz/\0", 2)==0)
-            	{
-            		send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
-            	}
-                else if ( strncmp(reqline[1], "/users/\0", 2)==0 || strncmp(reqline[1], "/login/\0", 2)==0)
-                {           
-	                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);           
-            	}
-                else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
-            }
-        }
-
-
-        //aqui inicia el post---------------------------------------------------------------------------------------------------------
-        else  if ( strncmp(reqline[0], "POST\0", 4)==0 )
-        {
-            reqline[1] = strtok (NULL, " \t");
-            reqline[2] = strtok (NULL, " \t\n");
-            if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
-            {
-                write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
-            }
-            else
-            {   
-                if ( strncmp(reqline[1], "/\0", 2)==0 )
-                    reqline[1] = "/index.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-
-                if ( strncmp(reqline[1], "/users/\0", 2)==0 )
-                    reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-
-                strcpy(path, ROOT);
-                strcpy(&path[strlen(ROOT)], reqline[1]);
-                printf("file: %s\n", path);
-
-                if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
-                {
-                	guarda_Archivo(datos,path);
-                    send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
-                    
-                    while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
-                        write (clients[n], data_to_send, bytes_read);
-
-                }
-                else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
-            }
-        }
-        //put ------------------------------------------------------------------------------------------------------------------------------
-        else  if ( strncmp(reqline[0], "PUT\0", 4)==0 )
-        {
-            reqline[1] = strtok (NULL, " \t");
-            reqline[2] = strtok (NULL, " \t\n");
-            if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
-            {
-                write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
-            }
-            else
-            {   
-                               
-                if ( strncmp(reqline[1], "/interfaz/\0", 2)==0 ){
-                	printf("\nsi esta entrando\n");
-                	printf("\nesto es una prueba\n");
-                	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
-                }
-                
-                else if ( strncmp(reqline[1], "/login/\0", 2)==0 ){
-                    reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
-                
-	                strcpy(path, ROOT);
-	                strcpy(&path[strlen(ROOT)], reqline[1]);
-	                printf("file: %s\n", path);
-
-	                if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
-	                {
-	                	validar_cuenta(datos,path);
-	                	printf("EL CaRACTER RETORNADO: %c\n",validacion);
-	                    if (validacion=='C')
-	                    {
-	                        printf("La validacion es correcta\n");
-	                    	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
-	                    }
-	                    else
-	                    {
-	                        printf("La validacion es incorrecta\n");
-	                    	send(clients[n], "HTTP/1.0 500 NO\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
-	                    }
-	                    
-	                    
-	                    while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
-	                        write (clients[n], data_to_send, bytes_read);
-
-	                }
-                }
-                
-                else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
-            }
-        }
+        if ( strncmp(reqline[0], "GET\0", 4)==0 )              get_verb(n);
+        else if ( strncmp(reqline[0], "OPTIONS\0", 4)==0)      options_verb(n);
+        else  if ( strncmp(reqline[0], "POST\0", 4)==0 )       post_verb(n);
+        else  if ( strncmp(reqline[0], "PUT\0", 4)==0 )        put_verb(n);
     }
-
     //Closing SOCKET
     shutdown (clients[n], SHUT_RDWR);         //All further send and recieve operations are DISABLED...
     close(clients[n]);
     clients[n]=-1;
 }
 
+void options_verb(int n)
+{
+	if(checkBadRequest(n))
+    {	
+        if (strncmp(reqline[1], "/interfaz/\0", 2)==0)
+        {
+            		send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
+        }
+        else if ( strncmp(reqline[1], "/users/\0", 2)==0 || strncmp(reqline[1], "/login/\0", 2)==0)
+        {           
+	        send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);           
+        }
+        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+    }
+}
+
+void put_verb(int n)
+
+{
+	if(checkBadRequest(n))
+    {                          
+        if ( strncmp(reqline[1], "/interfaz/\0", 2)==0 )
+        {
+           	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
+        }   
+        else if ( strncmp(reqline[1], "/login/\0", 2)==0 )
+        {
+            reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...    
+	        strcpy(path, ROOT);
+	        strcpy(&path[strlen(ROOT)], reqline[1]);
+	        printf("file: %s\n", path);
+	        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+	        {
+	            validar_cuenta(datos,path);
+	            printf("EL CaRACTER RETORNADO: %c\n",validacion);
+	            if (validacion=='C')
+	            {
+	                printf("La validacion es correcta\n");
+	                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	            else
+	            {
+	                printf("La validacion es incorrecta\n");
+	                send(clients[n], "HTTP/1.0 500 NO\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	                    
+	        
+	            while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+	                write (clients[n], data_to_send, bytes_read);
+
+	        }
+        }      
+        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+    }
+}
+
+
+void get_verb(int n)
+{
+
+	if(checkBadRequest(n))
+    {         
+        if ( strncmp(reqline[1], "/lights/\0", 2)==0 )
+        {
+             reqline[1] = "/lights.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...
+        	strcpy(path, ROOT);
+        	strcpy(&path[strlen(ROOT)], reqline[1]);
+        	printf("file: %s\n", path);
+        	if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+        	{
+            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+                   while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+                        write (clients[n], data_to_send, bytes_read);
+        	}
+        }
+        else if ( strncmp(reqline[1], "/login/\0", 2)==0 )
+        {
+            reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...    
+	        strcpy(path, ROOT);
+	        strcpy(&path[strlen(ROOT)], reqline[1]);
+	        printf("file: %s\n", path);
+	        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+	        {
+	            validar_cuenta(datos,path);
+	            printf("EL CaRACTER RETORNADO: %c\n",validacion);
+	            if (validacion=='C')
+	            {
+	                printf("La validacion es correcta\n");
+	                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	            else
+	            {
+	                printf("La validacion es incorrecta\n");
+	                send(clients[n], "HTTP/1.0 500 NO\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	            while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+	                write (clients[n], data_to_send, bytes_read);
+	        }
+        }
+        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+    }
+}
+
+void post_verb(int n)
+{
+	if(checkBadRequest(n))
+    {   
+        if ( strncmp(reqline[1], "/\0", 2)==0 )
+            reqline[1] = "/index.html";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE..
+            if ( strncmp(reqline[1], "/users/\0", 2)==0 )
+                reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE..
+                strcpy(path, ROOT);
+                strcpy(&path[strlen(ROOT)], reqline[1]);
+                printf("file: %s\n", path);
+
+            if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+            {
+                guarda_Archivo(datos,path);
+                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);    
+                    while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+                        write (clients[n], data_to_send, bytes_read);
+
+            }
+            else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+    }
+}
+
+
+bool checkBadRequest(int n)
+
+{
+	reqline[1] = strtok (NULL, " \t");
+    reqline[2] = strtok (NULL, " \t\n");
+    if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
+    {
+        write(clients[n], BAD_REQUEST_HEADER, strlen(BAD_REQUEST_HEADER));
+        return false;
+    }
+    return true;
+}

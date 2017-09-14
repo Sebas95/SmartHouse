@@ -14,8 +14,8 @@
 
 
 
-char *ROOT;
-int listenfd, clients[CONNMAX];
+
+
 
 int main(int argc, char* argv[])
 {

@@ -1,9 +1,12 @@
 #ifndef _EMBEDDEDSERVER_H
 #define _EMBEDDEDSERVER_H
 
-#define CONNMAX 1000
+
+#include <stdbool.h>
+
 #define CONNMAX 1000
 #define BYTES 1024
+#define BAD_REQUEST_HEADER "HTTP/1.0 400 Bad Request\n"
 
 char *ROOT;
 int listenfd; 
@@ -13,5 +16,10 @@ void startServer(char *,int *);
 void respond(int,char*);
 void receive(int);
 void error(char*);
+void options_verb(int n);
+void put_verb(int n);
+void post_verb(int n);
+bool checkBadRequest(int n);
+void get_verb(int n);
 
 #endif
