@@ -64,9 +64,10 @@ short doorPinMapper(char c)
 		return PIN_DOOR_2;
 	if(c=='3')
 		return PIN_DOOR_3;
-	else
+	if(c=='4')
 		return PIN_DOOR_4;
-	
+	else 
+		return PIN_DOOR_5;
 }
 
 /**

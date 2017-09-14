@@ -18,7 +18,7 @@
 char mesg[99999], datos[99999], *reqline[3], data_to_send[BYTES], path[99999];
 int rcvd, fd, bytes_read;
 char Puertas[10];
-char luces[10] ;  
+  
 
 
 //start server
@@ -119,7 +119,7 @@ void put_verb(int n)
         {
         	//obtiene el json
         	char* string =  get_luces(datos);
-        	
+
         	short numero_luz = lightPinMapper(string[26]);
         	short estado_luz =  retStateShort(string[37]);
 
@@ -145,38 +145,44 @@ void get_verb(int n)
     {         
         if ( strncmp(reqline[1], "/doors/\0", 2)==0 )
         {
-             send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
-             printf("%s\n","holis");
+            send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
+             
+            int x ;
+            for(x=0; x< 5 ; x++)
+             	Puertas[x] = x ;
+            for(x=5; x< 10 ;x++) 
+             	Puertas[x] =  readPin(doorPinMapper(Puertas[x-5]));
+             
              char jsonDoors[1000] = "";
 
              strcat(jsonDoors , "[");     
              strcat(jsonDoors ,"{\"numero\":");
              strcat(jsonDoors , retState(Puertas[0])); 
              strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[1])); 
              strcat(jsonDoors , "},");
              strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[2])); 
              strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[3])); 
              strcat(jsonDoors , "},");
              strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[4])); 
              strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[5])); 
              strcat(jsonDoors , "},");
              strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[6])); 
              strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[7])); 
              strcat(jsonDoors , "},");
              strcat(jsonDoors ,"{\"numero\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[8])); 
              strcat(jsonDoors , ",\"estado\":");
-             strcat(jsonDoors , retState(Puertas[0])); 
+             strcat(jsonDoors , retState(Puertas[9])); 
              strcat(jsonDoors , "}");
              strcat(jsonDoors ,"]"); 
-             printf("%s\n",jsonDoors);
+             
            
              write (clients[n], jsonDoors, strlen(jsonDoors));
         	 

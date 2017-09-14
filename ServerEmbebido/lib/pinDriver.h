@@ -16,6 +16,7 @@
 #define PIN_DOOR_2 12
 #define PIN_DOOR_3 13
 #define PIN_DOOR_4 15
+#define PIN_DOOR_5 16
 
 void init();
 void setPin(short,char);
