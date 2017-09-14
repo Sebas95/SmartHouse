@@ -10,21 +10,63 @@
 
 //This function itializates the required pins using exportPin
 void init(){
-	exportPin(7); //luz 1 
-	exportPin(2); //luz 2
-	exportPin(3); //luz 3
-	exportPin(4); //luz 4
-	exportPin(5); //luz 5
+	exportPin(PIN_LIGHT_1); //luz 1 
+	exportPin(PIN_LIGHT_2); //luz 2
+	exportPin(PIN_LIGHT_3); //luz 3
+	exportPin(PIN_LIGHT_4); //luz 4
+	exportPin(PIN_LIGHT_5); //luz 5
 	
+	setPin(PIN_LIGHT_1,'o');
+	setPin(PIN_LIGHT_2,'o');
+	setPin(PIN_LIGHT_3,'o');
+	setPin(PIN_LIGHT_4,'o');
+	setPin(PIN_LIGHT_5,'o');
 
-	setPin(7,'o');
-	setPin(2,'o');
-	setPin(3,'o');
-	setPin(4,'o');
-	setPin(5,'o');
+
+	exportPin(PIN_DOOR_1); //puerta 1 
+	exportPin(PIN_DOOR_2); //puerta 2
+	exportPin(PIN_DOOR_3); //puerta 3
+	exportPin(PIN_DOOR_4); //puerta 4
+	
+	
+	setPin(PIN_DOOR_1,'i');
+	setPin(PIN_DOOR_2,'i');
+	setPin(PIN_DOOR_3,'i');
+	setPin(PIN_DOOR_4,'i');
+
 
 	//system("echo \"3\" > /sys/class/gpio/export");
 	//system("echo \"4\" > /sys/class/gpio/export");
+}
+
+
+short lightPinMapper(char c)
+{
+	
+	if(c=='1')
+		return PIN_LIGHT_1;
+	if(c=='2')
+		return PIN_LIGHT_2;
+	if(c=='3')
+		return PIN_LIGHT_3;
+	if(c=='4')
+		return PIN_LIGHT_4;
+	else
+		return PIN_LIGHT_5;
+}
+
+short doorPinMapper(char c)
+{
+	
+	if(c=='1')
+		return PIN_DOOR_1;
+	if(c=='2')
+		return PIN_DOOR_2;
+	if(c=='3')
+		return PIN_DOOR_3;
+	else
+		return PIN_DOOR_4;
+	
 }
 
 /**

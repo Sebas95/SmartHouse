@@ -119,9 +119,10 @@ void put_verb(int n)
         {
         	//obtiene el json
         	char* string =  get_luces(datos);
-        	short numero_luz = retStateShort(string[26]);
+        	
+        	short numero_luz = lightPinMapper(string[26]);
         	short estado_luz =  retStateShort(string[37]);
-        	if(numero_luz == 1) numero_luz = 7;
+
         	printf("\nnumero bombillo: %c estado %c\n", string[26], string[37]);
         	//escribe en el bombillo que necesite, el estado (prendido o apagado)
         	writePin(numero_luz ,estado_luz );
