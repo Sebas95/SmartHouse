@@ -29,24 +29,6 @@ int main(int argc, char* argv[])
     strcpy(PORT,"7502");
 
     int slot=0;
-
-    //Parsing the command line arguments
-    while ((c = getopt (argc, argv, "p:r:")) != -1)
-        switch (c)
-        {
-            case 'r':
-                ROOT = malloc(strlen(optarg));
-                strcpy(ROOT,optarg);
-                break;
-            case 'p':
-                strcpy(PORT,optarg);
-                break;
-            case '?':
-                fprintf(stderr,"Wrong arguments given!!!\n");
-                exit(1);
-            default:
-                exit(1);
-        }
     
     printf("Server started at port no. %s%s%s with root directory as %s%s%s\n","\033[92m",PORT,"\033[0m","\033[92m",ROOT,"\033[0m");
     // Setting all elements to -1: signifies there is no client connected

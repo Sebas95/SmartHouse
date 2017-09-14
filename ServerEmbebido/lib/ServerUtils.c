@@ -206,3 +206,30 @@ void validar_cuenta(char datos[99999], char path [99999]){
 	fclose(archivo);
 
 }
+
+
+
+
+
+char* get_luces(char datos[99999])
+{
+	char* datos_entrantes= (char*)calloc(100,sizeof(char));
+	bool lee_entrante=false;
+	int i; 
+	for (i = 0; i < 1024; ++i)
+	{
+		if (datos[i] == '{' || lee_entrante)
+		{
+			datos_entrantes[i] = datos[i];
+			lee_entrante = true;
+		}
+		else if (datos[i] == '}')
+		{
+			datos_entrantes[i] = datos[i];
+			lee_entrante = false;
+		}
+	}
+
+	return datos_entrantes;
+
+}

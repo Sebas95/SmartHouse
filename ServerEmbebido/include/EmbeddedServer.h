@@ -4,6 +4,8 @@
 
 #include <stdbool.h>
 
+
+#define SUCCESS_HEADER "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n"
 #define CONNMAX 1000
 #define BYTES 1024
 #define BAD_REQUEST_HEADER "HTTP/1.0 400 Bad Request\n"
