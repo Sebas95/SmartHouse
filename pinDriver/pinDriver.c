@@ -63,18 +63,18 @@ int main(){
     //exportPin(4);
 
 	//Test used to write to the pins
-	/*
+	
     init();	
-	setPin(2,'i');
-	setPin(3,'i');
-	setPin(4,'i');	
-	writePin(2,0);
+	setPin(2,'o');
+	setPin(3,'o');
+	setPin(4,'o');	
+	writePin(2,1);
 	writePin(3,1);
 	writePin(4,1);
-	*/
+	
 	
 	//Test used for test the read of the pins
-
+	/*
     init();	
 	setPin(2,'i');
 	setPin(3,'i');
@@ -87,7 +87,7 @@ int main(){
 		printf("Valor del pin 3: %d\n",readPin(3));
 		printf("Valor del pin 4: %d\n",readPin(4));
 	}
-
+	*/
 }
 //This function itializates the required pins using exportPin
 void init(){
