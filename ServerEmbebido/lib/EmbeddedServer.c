@@ -121,9 +121,12 @@ void put_verb(int n)
         	char* string =  get_luces(datos);
         	printf("\ndatos: %c\n %c\n", string[26], string[37]);
 
-        	writePin(2,atoi(string[26]));
-        	writePin(3,atoi(string[27]));
-        	writePin(4,atoi(string[26]));
+        	//writePin(2,atoi(string[26]));
+        	//writePin(3,atoi(string[37]));
+        	//writePin(4,atoi(string[26]));
+        	writePin(2,1);
+        	writePin(3,0);
+        	writePin(4,1);
 
            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }         
@@ -218,9 +221,9 @@ void post_verb(int n)
             	reqline[1] = "/index.html";       
             if ( strncmp(reqline[1], "/users/\0", 2)==0 )
                 reqline[1] = "/user.json";       
-                strcpy(path, ROOT);
-                strcpy(&path[strlen(ROOT)], reqline[1]);
-                printf("file: %s\n", path);
+            strcpy(path, ROOT);
+            strcpy(&path[strlen(ROOT)], reqline[1]);
+            printf("file: %s\n", path);
 
             if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
             {
