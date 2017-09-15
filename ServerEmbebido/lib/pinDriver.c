@@ -51,8 +51,10 @@ short lightPinMapper(char c)
 		return PIN_LIGHT_3;
 	if(c=='4')
 		return PIN_LIGHT_4;
-	else
+	if(c=='5')
 		return PIN_LIGHT_5;
+	else
+		return 6;
 }
 
 short doorPinMapper(short c)
