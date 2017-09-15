@@ -25,7 +25,7 @@ short Puertas[4];
 //start server
 void startServer(char *port, int *listenfd)
 {
-	init(); //init pins
+	//init(); //init pins
     struct addrinfo hints, *res, *p;
     // getaddrinfo for host
     memset (&hints, 0, sizeof(hints));
@@ -100,7 +100,7 @@ void options_verb(int n)
 {
 	if(checkBadRequest(n))
     {	
-        if (strncmp(reqline[1], "/interfaz/\0", 2)==0)
+        if (strncmp(reqline[1], "/interfaz/\0", 10)==0)
         {
             		send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }
@@ -115,8 +115,33 @@ void options_verb(int n)
 void put_verb(int n)
 {
 	if(checkBadRequest(n))
-    {                          
-        if ( strncmp(reqline[1], "/luces/\0", 2)==0 )
+    {         
+    	if (strncmp(reqline[1], "/login/\0", 7)==0 )
+        {
+            reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...    
+	        strcpy(path, ROOT);
+	        strcpy(&path[strlen(ROOT)], reqline[1]);
+	        printf("file: %s\n", path);
+	        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+	        {
+	            validar_cuenta(datos,path);
+	            printf("EL CaRACTER RETORNADO: %c\n",validacion);
+	            if (validacion=='C')
+	            {
+	                printf("La validacion es correcta\n");
+	                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	            else
+	            {
+	                printf("La validacion es incorrecta\n");
+	                send(clients[n], "HTTP/1.0 500 NO\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            }
+	            while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+	                write (clients[n], data_to_send, bytes_read);
+
+	        }
+        }                 
+        else if (strncmp(reqline[1], "/luces/\0", 7)==0)
         {
         	//obtiene el json
         	char* string =  get_luces(datos);
@@ -137,7 +162,10 @@ void put_verb(int n)
         		writePin(numero_luz ,estado_luz );
         	}
            	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
-        }         
+        } 
+                 
+
+
         else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
     }
 }
@@ -151,7 +179,7 @@ void get_verb(int n)
 
 	if(checkBadRequest(n))
     {         
-        if ( strncmp(reqline[1], "/doors/\0", 2)==0 )
+        if ( strncmp(reqline[1], "/doors/\0", 7)==0)
         {
             send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
              
@@ -186,30 +214,24 @@ void get_verb(int n)
              write (clients[n], jsonDoors, strlen(jsonDoors));
         	 
         }
-        else if ( strncmp(reqline[1], "/login/\0", 2)==0 )
+
+        if ( strncmp(reqline[1], "/imagen/\0", 8)==0)
         {
-            reqline[1] = "/user.json";       
-	        strcpy(path, ROOT);
-	        strcpy(&path[strlen(ROOT)], reqline[1]);
-	        printf("file: %s\n", path);
-	        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
-	        {
-	            validar_cuenta(datos,path);
-	            printf("EL CaRACTER RETORNADO: %c\n",validacion);
-	            if (validacion=='C')
-	            {
-	                printf("La validacion es correcta\n");
-	                send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
-	            }
-	            else
-	            {
-	                printf("La validacion es incorrecta\n");
-	                send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
-	            }
-	            while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
-	                write (clients[n], data_to_send, bytes_read);
-	        }
+        	strcpy(path, ROOT);
+            strcpy(&path[strlen(ROOT)], "/patito.jpg");
+            printf("file: %s\n", path);
+
+            if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+            {
+                
+                send(clients[n], HEADER_IMG , strlen(HEADER_IMG), 0);    
+                while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
+                    write (clients[n], data_to_send, bytes_read);
+
+            }
+            else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND 
         }
+        
         else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
     }
 }
@@ -220,7 +242,7 @@ void post_verb(int n)
     {   
         	if ( strncmp(reqline[1], "/\0", 2)==0 )
             	reqline[1] = "/index.html";       
-            if ( strncmp(reqline[1], "/users/\0", 2)==0 )
+            if ( strncmp(reqline[1], "/users/\0", 7)==0 )
                 reqline[1] = "/user.json";       
             strcpy(path, ROOT);
             strcpy(&path[strlen(ROOT)], reqline[1]);
