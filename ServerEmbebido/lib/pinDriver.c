@@ -71,6 +71,17 @@ short doorPinMapper(short c)
 	
 }
 
+void writeAllPinsLights(short estado)
+{
+	
+	writePin(PIN_LIGHT_1 ,estado ); 
+    writePin(PIN_LIGHT_2 ,estado ); 
+    writePin(PIN_LIGHT_3 ,estado ); 
+    writePin(PIN_LIGHT_4 ,estado ); 
+    writePin(PIN_LIGHT_5 ,estado ); 
+
+}
+
 /**
 ** pinNumber is the number of GPIO to export
 ** This is the functions that allows to export a pin named un pinNumber

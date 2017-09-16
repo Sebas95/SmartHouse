@@ -25,7 +25,7 @@ short Puertas[4];
 //start server
 void startServer(char *port, int *listenfd)
 {
-	//init(); //init pins
+	init(); //init pins
     struct addrinfo hints, *res, *p;
     // getaddrinfo for host
     memset (&hints, 0, sizeof(hints));
@@ -60,6 +60,10 @@ void startServer(char *port, int *listenfd)
     }
 }
 
+void sendNotFound(int n)
+{
+	write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+}
 
 //client connection
 void respond(int n,char* ROOT)
@@ -100,15 +104,16 @@ void options_verb(int n)
 {
 	if(checkBadRequest(n))
     {	
-        if (strncmp(reqline[1], "/interfaz/\0", 10)==0)
+        if (strncmp(reqline[1], "/luces/\0", 6)==0  || strncmp(reqline[1], "/doors/\0", 5)==0)
         {
-            		send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
+        	send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);   
+            		//send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         }
         else if ( strncmp(reqline[1], "/users/\0", 2)==0 || strncmp(reqline[1], "/login/\0", 2)==0)
         {           
 	        send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);          
         }
-        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+        else    sendNotFound(n);
     }
 }
 
@@ -116,7 +121,7 @@ void put_verb(int n)
 {
 	if(checkBadRequest(n))
     {         
-    	if (strncmp(reqline[1], "/login/\0", 7)==0 )
+    	if (strncmp(reqline[1], "/login/\0", 6)==0 )
         {
             reqline[1] = "/user.json";        //Because if no file is specified, index.html will be opened by default (like it happens in APACHE...    
 	        strcpy(path, ROOT);
@@ -125,52 +130,43 @@ void put_verb(int n)
 	        if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
 	        {
 	            validar_cuenta(datos,path);
-	            printf("EL CaRACTER RETORNADO: %c\n",validacion);
 	            if (validacion=='C')
 	            {
-	                printf("La validacion es correcta\n");
-	                send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
+	            	send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);  
+	                //send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
 	            }
 	            else
 	            {
-	                printf("La validacion es incorrecta\n");
 	                send(clients[n], "HTTP/1.0 500 NO\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\nContent-Type:application/json;charset=UTF-8\n\n", 203, 0);
 	            }
 	            while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
 	                write (clients[n], data_to_send, bytes_read);
-
 	        }
         }                 
-        else if (strncmp(reqline[1], "/luces/\0", 7)==0)
+        else if (strncmp(reqline[1], "/luces/\0", 6)==0)
         {
         	//obtiene el json
         	char* string =  get_luces(datos);
-
         	short numero_luz = lightPinMapper(string[26]);
         	short estado_luz =  retStateShort(string[37]);
             if(numero_luz == CODIGO_TODAS_PUERTAS)
         	{
-        		writePin(lightPinMapper('1') ,estado_luz ); 
-        		writePin(lightPinMapper('2') ,estado_luz ); 
-        		writePin(lightPinMapper('3') ,estado_luz ); 
-        		writePin(lightPinMapper('4') ,estado_luz ); 
-        		writePin(lightPinMapper('5') ,estado_luz ); 
+        		writeAllPinsLights(estado_luz);
         	}
         	else
         	{
         		//escribe en el bombillo que necesite, el estado (prendido o apagado)
         		writePin(numero_luz ,estado_luz );
         	}
-           	send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
+        	send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);   
+           	//send(clients[n], "HTTP/1.0 200 OK\nAccess-Control-Allow-Origin:http://localhost:8383\nAccess-Control-Allow-Headers:Content-Type\nAccess-Control-Allow-Methods:GET,PUT,POST,OPTIONS\ncharset=UTF-8\n\n", 173, 0);
         } 
                  
 
 
-        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+        else   sendNotFound(n);
     }
 }
-
-
 
 
 
@@ -179,7 +175,7 @@ void get_verb(int n)
 
 	if(checkBadRequest(n))
     {         
-        if ( strncmp(reqline[1], "/doors/\0", 7)==0)
+        if ( strncmp(reqline[1], "/doors/\0", 6)==0)
         {
             send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);
              
@@ -187,10 +183,8 @@ void get_verb(int n)
             for(x=0; x< 4 ;x++) 
             {
              	Puertas[x] =  readPin(doorPinMapper(x+1));
-             	printf("%d shrt:\n",Puertas[x]);
-             }
+            }
              char jsonDoors[1000] = "";
-
              strcat(jsonDoors , "[");     
              strcat(jsonDoors ,"{\"numero\":1");
              strcat(jsonDoors , ",\"estado\":");
@@ -209,19 +203,23 @@ void get_verb(int n)
              strcat(jsonDoors , retState(Puertas[3])); 
              strcat(jsonDoors , "}");
              strcat(jsonDoors ,"]"); 
-             
-           
              write (clients[n], jsonDoors, strlen(jsonDoors));
         	 
         }
 
-        if ( strncmp(reqline[1], "/imagen/\0", 8)==0)
+        else if ( strncmp(reqline[1], "/imagen/\0", 7)==0)
         {
         	strcpy(path, ROOT);
-            strcpy(&path[strlen(ROOT)], "/patito.jpg");
+        	//take picture in ./
+        	 
+        	const char * command = "fswebcam imagen.jpg"; 
+        	const char * img_name = "/imagen.jpg";
+        	int tf = system(command);
+
+            strcpy(&path[strlen(ROOT)], img_name);
             printf("file: %s\n", path);
 
-            if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
+            if ( (fd=open(path, O_RDONLY))!=-1 || (tf != -1))    //FILE FOUND
             {
                 
                 send(clients[n], HEADER_IMG , strlen(HEADER_IMG), 0);    
@@ -229,10 +227,10 @@ void get_verb(int n)
                     write (clients[n], data_to_send, bytes_read);
 
             }
-            else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND 
+            else sendNotFound(n);
         }
         
-        else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+        else sendNotFound(n);
     }
 }
 
@@ -242,7 +240,7 @@ void post_verb(int n)
     {   
         	if ( strncmp(reqline[1], "/\0", 2)==0 )
             	reqline[1] = "/index.html";       
-            if ( strncmp(reqline[1], "/users/\0", 7)==0 )
+            if ( strncmp(reqline[1], "/users/\0", 4)==0 )
                 reqline[1] = "/user.json";       
             strcpy(path, ROOT);
             strcpy(&path[strlen(ROOT)], reqline[1]);
@@ -256,7 +254,7 @@ void post_verb(int n)
                         write (clients[n], data_to_send, bytes_read);
 
             }
-            else    write(clients[n], "HTTP/1.0 404 Not Found\n", 23); //FILE NOT FOUND
+            else  sendNotFound(n);
     }
 }
 

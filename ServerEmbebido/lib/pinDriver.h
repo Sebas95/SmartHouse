@@ -13,7 +13,7 @@
 #define PIN_LIGHT_5 10
 
 #define PIN_DOOR_1 11
-#define PIN_DOOR_2 12
+#define PIN_DOOR_2 18
 #define PIN_DOOR_3 13
 #define PIN_DOOR_4 15
 

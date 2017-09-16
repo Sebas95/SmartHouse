@@ -11,6 +11,7 @@
 #define BYTES 1024
 #define BAD_REQUEST_HEADER "HTTP/1.0 400 Bad Request\n"
 
+
 char *ROOT;
 int listenfd; 
 int clients[CONNMAX];
