@@ -11,19 +11,13 @@
 #include<fcntl.h>
 #include<EmbeddedServer.h>
 
-
-
-
-
-
-
 int main(int argc, char* argv[])
 {
     struct sockaddr_in clientaddr;
     socklen_t addrlen;
     char c;    
     
-    //Default Values PATH = ~/ and PORT=7500
+    //Default Values PATH = ~/ and PORT=10000
     char PORT[6];
     ROOT = getenv("PWD");
     strcpy(PORT,"10000");
@@ -50,8 +44,6 @@ int main(int argc, char* argv[])
             if ( fork()==0 )
             {
                 respond(slot,ROOT);
-                //options(slot);
-                //receive(slot);
                 exit(0);
             }
         }
