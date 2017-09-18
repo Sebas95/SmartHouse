@@ -39,6 +39,7 @@ void init(){
 	//system("echo \"4\" > /sys/class/gpio/export");
 }
 
+
 short lightPinMapper(char c)
 {
 	
