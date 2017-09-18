@@ -278,10 +278,10 @@ void get_doors(int n)
 	send(clients[n], SUCCESS_HEADER , strlen(SUCCESS_HEADER), 0);         
     short x ;
     //get the doors' status from GPIOS
-    for(x=0; x< 4 ;x++) 
-    {
-       	Puertas[x] =  readPin(doorPinMapper(x+1));
-    }
+    Puertas[0] =  readPin(PIN_DOOR_1);
+    Puertas[1] =  readPin(PIN_DOOR_2);
+    Puertas[2] =  readPin(PIN_DOOR_3);
+    Puertas[3] =  readPin(PIN_DOOR_4);
     //variable where json resource is concatenated
     char jsonDoors[1000] = "";
     //concatenate strings for resource luces
@@ -300,11 +300,13 @@ void get_doors(int n)
     strcat(jsonDoors , "},");
     strcat(jsonDoors ,"{\"numero\":4"); 
     strcat(jsonDoors , ",\"estado\":");
-    strcat(jsonDoors , retState(Puertas[3])); 
+    strcat(jsonDoors , retState(readPin(PIN_DOOR_4))); 
     strcat(jsonDoors , "}");
     strcat(jsonDoors ,"]");
     //send the json string to the client 
     write (clients[n], jsonDoors, strlen(jsonDoors));
+    printf("state %s \n",retState(readPin(PIN_DOOR_4)));
+    printf("str %s \n",jsonDoors);
 }
 
 /**
