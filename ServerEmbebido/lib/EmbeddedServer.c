@@ -16,9 +16,7 @@
 
 
 
-char mesg[99999], datos[99999], *reqline[3], data_to_send[BYTES], path[99999];
-int rcvd, fd, bytes_read;
-short Puertas[CANTIDAD_PUERTAS];
+
   
 
 

@@ -20,6 +20,13 @@ char *ROOT;
 int listenfd; 
 int clients[CONNMAX];
 
+char mesg[99999]; 
+char datos[99999]; 
+char *reqline[3]; 
+char data_to_send[BYTES]; 
+char path[99999];
+int rcvd, fd, bytes_read;
+short Puertas[CANTIDAD_PUERTAS];
 
 
 void startServer(char *port, int *listenfd);
