@@ -305,6 +305,7 @@ void get_doors(int n)
     strcat(jsonDoors ,"]");
     //send the json string to the client 
     write (clients[n], jsonDoors, strlen(jsonDoors));
+    printf("ReadPin %d\n", readPin(PIN_DOOR_4));
     printf("state %s \n",retState(readPin(PIN_DOOR_4)));
     printf("str %s \n",jsonDoors);
 }
