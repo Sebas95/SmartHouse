@@ -88,28 +88,26 @@ void writeAllPinsLights(short estado)
 
 
 void exportPin(short pinNumber){
-	char openCall[47] = PATH;
+	char openCall[47] = PATH;  //char to open the file of the GPIO values
 	char pinNumberAux[2] = "";
-	char finalCall[47] = ECHO;
+	char finalCall[47] = ECHO; //char to make the final call to export the pin 
 
 	sprintf(pinNumberAux, "%d", pinNumber);
 
 	strcat(openCall, pinNumberAux);	
 	strcat(openCall, "/value");	
-	//printf("Call para el valor: %s\n",openCall);
 	//-------------------Check if pin is exported
-	int fd = open(openCall,(O_RDWR|O_SYNC));
+	int fd = open(openCall,(O_RDWR|O_SYNC)); //open the value of the GPIO to see if exported
 
 	char data[128];
  
-    if(read(fd, data, 128) < 0){
-    	sprintf(pinNumberAux, "\"%d\"", pinNumber);
-		strcat(finalCall, pinNumberAux);
-		strcat(finalCall, MORE_THAN);
-		strcat(finalCall, PATH_EXPORT);
- 		printf("Export pin: %s\n",pinNumberAux);
- 		system(finalCall);
- 		//printf("%s\n",data);
+    if(read(fd, data, 128) < 0){ //If the value is -1 that means not exported already
+    	sprintf(pinNumberAux, "\"%d\"", pinNumber); //Converts the value of the pin from int to char
+		strcat(finalCall, pinNumberAux); //Concatenates the char of pin number to final call
+		strcat(finalCall, MORE_THAN);    //Concatenates de ">"
+		strcat(finalCall, PATH_EXPORT);  //Concatenates the "/sys/class/gpio/export"
+ 		printf("Export pin: %s\n",pinNumberAux); 
+ 		system(finalCall); //makes the system call to the string made
      	
      }
  	else{
@@ -129,17 +127,17 @@ void writePin(short pinNumber, short value){
 	}
 
 	else{
-		char finalCall[47] = ECHO;
+		char finalCall[47] = ECHO;    //Creates de char[] with "echo"
 		char pinNumberAux[2] = "";
-		sprintf(pinNumberAux, "\"%d\"", value);
-		strcat(finalCall, pinNumberAux);
-		strcat(finalCall, MORE_THAN);
-		strcat(finalCall, PATH);
+		sprintf(pinNumberAux, "\"%d\"", value); //Converts the value of the pin from int to char
+		strcat(finalCall, pinNumberAux);    //Concatenates the char of pin number to final call
+		strcat(finalCall, MORE_THAN); //Concatenates de ">"
+		strcat(finalCall, PATH); //Concatenates the "/sys/class/gpio/gpio"
 		sprintf(pinNumberAux, "%d", pinNumber);
-		strcat(finalCall, pinNumberAux);
-		strcat(finalCall, VALUE);
+		strcat(finalCall, pinNumberAux);  //Concatenates the gpio number
+		strcat(finalCall, VALUE); //Concatenates "/value"
 		printf("Writting %d in pin: %s\n",value,pinNumberAux);
-		system(finalCall);
+		system(finalCall); //makes the system call to the string made
 	}
 }
 
@@ -164,16 +162,15 @@ void setPin(short pinNumber,char state){ //0 for in, 1 for out
 			printf("Wrong arguments can be 'i' or 'o'");
 		}
 	}
-	char finalCall[47] = ECHO;
-	strcat(finalCall, stateAux);
-	strcat(finalCall, MORE_THAN);
-	strcat(finalCall, PATH);
-	strcat(finalCall, pinNumberAux);
-	strcat(finalCall, DIRECTION);
+	char finalCall[47] = ECHO; //creates finalCall with "echo"
+	strcat(finalCall, stateAux); //Concatenates "out" or "in"
+	strcat(finalCall, MORE_THAN);//Concatenates ">"
+	strcat(finalCall, PATH);  //Concatenates the "/sys/class/gpio/gpio"
+	strcat(finalCall, pinNumberAux); //Concatenates the gpio number
+	strcat(finalCall, DIRECTION); //Concatenates "/direction"
 	printf("Setting pin %s to: %s\n",pinNumberAux,stateAux);
-	system(finalCall);
+	system(finalCall); 
 
-	//system("echo \"out\" > /sys/class/gpio/gpio4/direction");
 }
 
 /*
@@ -182,23 +179,22 @@ void setPin(short pinNumber,char state){ //0 for in, 1 for out
 */
 
 short readPin(short pinNumber){
-	char openCall[47] = PATH;
+	char openCall[47] = PATH; //Creates de char[] with "echo"
 	char pinNumberAux[2] = "";
-	sprintf(pinNumberAux, "%d", pinNumber);
-	strcat(openCall, pinNumberAux);	
-	strcat(openCall, "/value");	
-	//printf("Call para el valor: %s\n",openCall);
+	sprintf(pinNumberAux, "%d", pinNumber); 
+	strcat(openCall, pinNumberAux);	 //Concatenates the char of pin number to final call
+	strcat(openCall, "/value");	 //Concatenates "/value"
 	//-------------------Check if pin is exported
-	int fd = open(openCall,(O_RDWR|O_SYNC));
-	char* data = malloc(sizeof(char));
-    if(read(fd, data, 1) < 0){
+	int fd = open(openCall,(O_RDWR|O_SYNC)); //Opens the file to read the value of the gpios
+	char* data = malloc(sizeof(char)); 
+    if(read(fd, data, 1) < 0){ //read the file in the first position
  		printf("The pin %d is not configured\n",pinNumber);
      	return -1;
      }
  	else{
 		//printf("The value of pin %d is: %s\n",pinNumber,data);
 		short* returnValue = malloc(sizeof(short));
-		*returnValue = atoi(data);
+		*returnValue = atoi(data); //Converts the data to int 
 		return *returnValue;
  	}
 }
